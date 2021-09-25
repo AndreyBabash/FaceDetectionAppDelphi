@@ -1,0 +1,239 @@
+unit FMain;
+
+interface
+
+uses
+  System.SysUtils,
+  System.Types,
+  System.UITypes,
+  System.Classes,
+  System.Variants,
+  System.Math,
+  FMX.Types,
+  FMX.Controls,
+  FMX.Forms,
+  FMX.Graphics,
+  FMX.Dialogs,
+  FMX.Objects,
+  FMX.StdCtrls,
+  FMX.ExtCtrls,
+  FMX.Controls.Presentation,
+  System.Threading,
+  Grijjy.FaceDetection, FMX.Media;
+
+type
+  TFormMain = class(TForm)
+    ToolBar: TToolBar;
+    CameraComponent1: TCameraComponent;
+    Button1: TButton;
+    Button2: TButton;
+    Image1: TImage;
+    procedure Button2Click(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure CameraComponent1SampleBufferReady(Sender: TObject;
+      const ATime: TMediaTime);
+    procedure FormCreate(Sender: TObject);
+  private
+    { Private declarations }
+    FFaceDetector: IgoFaceDetector;
+    FFaces: TArray<TgoFace>;
+    FBitmap: TBitmap;
+    process:boolean;
+    task:ITask;
+    procedure FacePaint;
+  private
+    procedure ProcessImage;//(const AResourceName: String);
+  public
+    { Public declarations }
+    destructor Destroy; override;
+  end;
+
+var
+  FormMain: TFormMain;
+
+implementation
+
+{$R *.fmx}
+
+{ TFormMain }
+
+procedure TFormMain.Button1Click(Sender: TObject);
+begin
+  CameraComponent1.Active := false;
+end;
+
+procedure TFormMain.Button2Click(Sender: TObject);
+begin
+  CameraComponent1.Active := false;
+  CameraComponent1.Quality := FMX.Media.TVideoCaptureQuality.LowQuality;
+  CameraComponent1.Kind := FMX.Media.TCameraKind.FrontCamera;
+  CameraComponent1.FocusMode := FMX.Media.TFocusMode.ContinuousAutoFocus;
+  CameraComponent1.Active := True;
+end;
+
+procedure TFormMain.CameraComponent1SampleBufferReady(Sender: TObject;
+  const ATime: TMediaTime);
+begin
+  TThread.Synchronize(TThread.CurrentThread,
+  procedure
+  begin
+    ProcessImage;
+   // exit;
+  end);
+end;
+
+destructor TFormMain.Destroy;
+begin
+  FBitmap.Free;
+  inherited;
+end;
+
+procedure TFormMain.FormCreate(Sender: TObject);
+begin
+  { Create bitmap and face detector if needed. }
+  if (FBitmap = nil) then
+  FBitmap := TBitmap.Create;
+  process:=false;
+end;
+
+
+procedure TFormMain.FacePaint;
+  var
+  SrcRect, DstRect, Rect: TRectF;
+  Scale, DstWidth, DstHeight: Single;
+  Face: TgoFace;
+
+  procedure PaintEye(const APosition: TPointF; const AColor: TAlphaColor);
+  var
+    P: TPointF;
+    R: TRectF;
+    Radius: Single;
+  begin
+    { Exit if eye position is not available }
+    if (APosition.X = 0) and (APosition.Y = 0) then
+      Exit;
+
+    P.X := APosition.X * Scale;
+    P.Y := APosition.Y * Scale;
+    P.Offset(DstRect.TopLeft);
+
+    Radius := Face.EyesDistance * Scale * 0.2;
+    R := RectF(P.X - Radius, P.Y - Radius, P.X + Radius, P.Y + Radius);
+
+    TThread.Synchronize(nil, procedure
+    begin
+    with Image1 do
+      begin
+      Canvas.BeginScene();
+      Canvas.Stroke.Color := AColor;
+      Canvas.Stroke.Thickness:=7;
+      Canvas.DrawEllipse(R, 1);
+      Canvas.EndScene;
+      exit;
+      end;
+    end);
+  end;
+
+begin
+
+  { Paint bitmap to fit the paint box while preserving aspect ratio. }
+  SrcRect := RectF(0, 0, FBitmap.Width, FBitmap.Height);
+  Scale := Min(Image1.Width / FBitmap.Width, Image1.Height / FBitmap.Height);
+  DstWidth := Round(FBitmap.Width * Scale);
+  DstHeight := Round(FBitmap.Height * Scale);
+  DstRect.Left := Floor(0.5 * (Image1.Width - DstWidth));
+  DstRect.Top := Floor(0.5 * (Image1.Height - DstHeight));
+  DstRect.Width := DstWidth;
+  DstRect.Height := DstHeight;
+
+  TThread.Synchronize(nil,
+  procedure
+  begin
+    with Image1 do
+    begin
+      Canvas.BeginScene();
+     // Canvas.DrawBitmap(FBitmap, SrcRect, DstRect, 1);
+      Canvas.DrawBitmap(FBitmap, SrcRect, RectF(0, 0, Image1.Width, Image1.Height), 1);
+      Canvas.EndScene;
+      exit;
+    end;
+  //  Image1.Bitmap.Assign(FBitmap);
+  end);
+
+  { Paint each face with its features }
+  for Face in FFaces do
+  begin
+    { Paint bounds around entire face }
+    Rect := Face.Bounds;
+    Rect.Left := Floor(Rect.Left * Scale);
+    Rect.Top := Floor(Rect.Top * Scale);
+    Rect.Right := Ceil(Rect.Right * Scale);
+    Rect.Bottom := Ceil(Rect.Bottom * Scale);
+    Rect.Offset(DstRect.TopLeft);
+
+    TThread.Synchronize(nil, procedure
+    begin
+      with Image1 do
+      begin
+        Canvas.BeginScene();
+        Canvas.Stroke.Color := TAlphaColors.Lime;
+        Canvas.Stroke.Kind := TBrushKind.Solid;
+        Canvas.Stroke.Thickness :=7;
+        Canvas.DrawRect(Rect, 4, 4, AllCorners, 1);
+
+        Canvas.EndScene;
+        exit;
+      end;
+    end);
+
+
+
+    { Paint the eyes }
+    PaintEye(Face.LeftEyePosition, TAlphaColors.Magenta);
+    PaintEye(Face.RightEyePosition, TAlphaColors.Cyan);
+
+  end;
+
+  FBitmap:=nil;
+  process:=false;
+
+end;
+
+
+procedure TFormMain.ProcessImage;
+begin
+
+  if process then
+  exit;
+
+
+  { Create bitmap and face detector if needed. }
+  if (FBitmap = nil) then
+  FBitmap := TBitmap.Create;
+
+  CameraComponent1.SampleBufferToBitmap(FBitmap,True);
+
+  process:=true;
+
+  if (FFaceDetector = nil) then
+    { Create a face detector using high accuracy and a maximum detection of
+      10 faces. }
+    FFaceDetector := TgoFaceDetector.Create(TgoFaceDetectionAccuracy.High, 10);
+
+
+  { Detect faces in bitmap }
+  FFaces := FFaceDetector.DetectFaces(FBitmap);
+
+  task:=TTask.Create(procedure
+  begin
+    FacePaint;
+   // exit;
+  end);
+
+  task.Start;
+
+
+
+end;
+
+end.

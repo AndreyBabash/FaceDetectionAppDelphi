@@ -1,0 +1,219 @@
+object FormMain: TFormMain
+  Left = 0
+  Top = 0
+  Caption = 'Face Detection'
+  ClientHeight = 507
+  ClientWidth = 525
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  OnCreate = FormCreate
+  DesignerMasterStyle = 3
+  object Layout2: TLayout
+    Align = Client
+    Size.Width = 525.000000000000000000
+    Size.Height = 411.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 5
+    object Image1: TImage
+      MultiResBitmap = <
+        item
+        end>
+      Align = Client
+      Size.Width = 525.000000000000000000
+      Size.Height = 411.000000000000000000
+      Size.PlatformDefault = False
+    end
+  end
+  object ToolBar: TToolBar
+    Align = Bottom
+    Position.Y = 459.000000000000000000
+    Size.Width = 525.000000000000000000
+    Size.Height = 48.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    object Button1: TButton
+      Align = Right
+      Position.X = 365.000000000000000000
+      Size.Width = 80.000000000000000000
+      Size.Height = 48.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 1
+      Text = 'Stop'
+      OnClick = Button1Click
+    end
+    object Button2: TButton
+      Align = Right
+      Position.X = 445.000000000000000000
+      Size.Width = 80.000000000000000000
+      Size.Height = 48.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 0
+      Text = 'Start'
+      OnClick = Button2Click
+    end
+  end
+  object CameraComponent1: TCameraComponent
+    Kind = FrontCamera
+    OnSampleBufferReady = CameraComponent1SampleBufferReady
+    Left = 224
+    Top = 108
+  end
+  object Layout1: TLayout
+    Align = Contents
+    Size.Width = 525.000000000000000000
+    Size.Height = 507.000000000000000000
+    Size.PlatformDefault = False
+    Visible = False
+    TabOrder = 3
+    object Rectangle1: TRectangle
+      Align = Contents
+      Fill.Color = claCadetblue
+      Opacity = 0.800000011920929000
+      Size.Width = 525.000000000000000000
+      Size.Height = 507.000000000000000000
+      Size.PlatformDefault = False
+    end
+    object Label2: TLabel
+      Align = Top
+      StyledSettings = [Family, Size]
+      Margins.Left = 10.000000000000000000
+      Margins.Top = 10.000000000000000000
+      Margins.Right = 10.000000000000000000
+      Margins.Bottom = 10.000000000000000000
+      Position.X = 10.000000000000000000
+      Position.Y = 10.000000000000000000
+      Size.Width = 505.000000000000000000
+      Size.Height = 23.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.Font.Size = 18.000000000000000000
+      TextSettings.Font.StyleExt = {00070000000000000004000000}
+      TextSettings.FontColor = claBlue
+      Text = 'Camera options'
+      TabOrder = 1
+    end
+    object CheckBox1: TCheckBox
+      Align = Top
+      Margins.Left = 10.000000000000000000
+      Margins.Top = 10.000000000000000000
+      Margins.Right = 10.000000000000000000
+      Margins.Bottom = 10.000000000000000000
+      Position.X = 10.000000000000000000
+      Position.Y = 176.000000000000000000
+      Size.Width = 505.000000000000000000
+      Size.Height = 19.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 3
+      Text = 'Back Camera'
+      OnChange = CheckBox1Change
+    end
+    object RadioButton1: TRadioButton
+      Align = Top
+      Margins.Left = 10.000000000000000000
+      Margins.Top = 10.000000000000000000
+      Margins.Right = 10.000000000000000000
+      Margins.Bottom = 10.000000000000000000
+      Position.X = 10.000000000000000000
+      Position.Y = 53.000000000000000000
+      Size.Width = 505.000000000000000000
+      Size.Height = 19.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 6
+      Text = 'High Quality'
+      OnChange = RadioButton1Change
+    end
+    object RadioButton2: TRadioButton
+      Align = Top
+      Margins.Left = 10.000000000000000000
+      Margins.Top = 10.000000000000000000
+      Margins.Right = 10.000000000000000000
+      Margins.Bottom = 10.000000000000000000
+      Position.X = 10.000000000000000000
+      Position.Y = 92.000000000000000000
+      Size.Width = 505.000000000000000000
+      Size.Height = 25.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 5
+      Text = 'Medium Quality'
+      OnChange = RadioButton2Change
+    end
+    object RadioButton3: TRadioButton
+      Align = Top
+      IsChecked = True
+      Margins.Left = 10.000000000000000000
+      Margins.Top = 10.000000000000000000
+      Margins.Right = 10.000000000000000000
+      Margins.Bottom = 10.000000000000000000
+      Position.X = 10.000000000000000000
+      Position.Y = 137.000000000000000000
+      Size.Width = 505.000000000000000000
+      Size.Height = 19.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 4
+      Text = 'Low Quality'
+      OnChange = RadioButton3Change
+    end
+    object Button4: TButton
+      Align = Bottom
+      Margins.Left = 10.000000000000000000
+      Margins.Top = 10.000000000000000000
+      Margins.Right = 10.000000000000000000
+      Margins.Bottom = 10.000000000000000000
+      Position.X = 10.000000000000000000
+      Position.Y = 456.000000000000000000
+      Size.Width = 505.000000000000000000
+      Size.Height = 41.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 7
+      Text = 'OK'
+      TintColor = claMediumvioletred
+      OnClick = Button4Click
+    end
+    object CheckBox2: TCheckBox
+      Align = Top
+      Margins.Left = 10.000000000000000000
+      Margins.Top = 10.000000000000000000
+      Margins.Right = 10.000000000000000000
+      Margins.Bottom = 10.000000000000000000
+      Position.X = 10.000000000000000000
+      Position.Y = 215.000000000000000000
+      Size.Width = 505.000000000000000000
+      Size.Height = 19.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 2
+      Text = 'Auto Focus'
+      OnChange = CheckBox1Change
+    end
+  end
+  object ToolBar1: TToolBar
+    Size.Width = 525.000000000000000000
+    Size.Height = 48.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 2
+    TintColor = claSpringgreen
+    object Label1: TLabel
+      Align = Client
+      StyledSettings = [Family]
+      Size.Width = 477.000000000000000000
+      Size.Height = 48.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.Font.Size = 20.000000000000000000
+      TextSettings.Font.StyleExt = {00070000000000000004000000}
+      TextSettings.FontColor = claBlueviolet
+      TextSettings.HorzAlign = Center
+      Text = 'FaceDetection'
+      TabOrder = 0
+    end
+    object Button3: TButton
+      Align = Right
+      Position.X = 477.000000000000000000
+      Size.Width = 48.000000000000000000
+      Size.Height = 48.000000000000000000
+      Size.PlatformDefault = False
+      StyleLookup = 'detailstoolbutton'
+      TabOrder = 1
+      Text = 'Button3'
+      OnClick = Button3Click
+    end
+  end
+end
